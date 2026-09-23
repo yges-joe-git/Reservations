@@ -12,13 +12,13 @@
     /* 篩選列樣式 */
     .filter-bar { background-color: #f1f1f1; padding: 10px 15px; border-radius: 5px; margin-bottom: 15px; font-weight: bold; }
     
-    /* 參考附圖的橄欖綠風格矩陣表格 */
+    /* 矩陣表格風格 */
     .matrix-table { border-collapse: collapse; width: 100%; background-color: white; }
     .matrix-table th { background-color: #555100; color: white; text-align: center; vertical-align: middle; padding: 12px 6px; border: 1px solid #3d3a00; font-size: 0.95rem; }
     .matrix-table td { border: 1px solid #cccccc; vertical-align: top; padding: 6px; min-width: 130px; height: 90px; }
     .date-cell { text-align: center; vertical-align: middle !important; font-weight: bold; background-color: #f9f9f9; width: 110px; min-width: 110px; color: #333; }
     
-    /* 預約卡片樣式 (參照附圖) */
+    /* 預約卡片樣式 */
     .res-card { border: 1px solid #b8a38a; background-color: #efebe0; border-radius: 3px; margin-bottom: 6px; cursor: pointer; transition: transform 0.1s; }
     .res-card:hover { transform: scale(1.02); box-shadow: 0 2px 5px rgba(0,0,0,0.15); }
     .res-slot-header { background-color: #8a8352; color: white; text-align: center; font-size: 0.8rem; padding: 2px 0; font-weight: bold; }
@@ -41,15 +41,14 @@
         <button class="nav-link active" id="calendar-tab" data-bs-toggle="tab" data-bs-target="#calendar-view" type="button">📅 場地預約矩陣表</button>
       </li>
       <li class="nav-item">
-        <button class="nav-link" id="admin-tab" data-bs-toggle="tab" data-bs-target="#admin-view" type="button">⚙️ 管理者專區</button>
+        <button class="nav-link" id="admin-tab" data-bs-toggle="tab" data-bs-target="#admin-view" type="button">⚙️ 後台管理專區</button>
       </li>
     </ul>
 
     <div class="tab-content" id="mainTabContent">
       
-      <!-- 1. 矩陣式預約狀況圖表 (參照附圖) -->
+      <!-- 1. 矩陣式預約狀況圖表 -->
       <div class="tab-pane fade show active" id="calendar-view">
-        <!-- 查詢條件區塊 -->
         <div class="filter-bar d-flex align-items-center gap-2">
           <span>查詢條件</span>
           <label class="ms-3">年度：</label>
@@ -59,42 +58,42 @@
           <button class="btn btn-sm btn-primary ms-3" onclick="loadReservations()">🔄 重新整理</button>
         </div>
 
-        <!-- 矩陣表格 -->
         <div class="table-responsive">
           <table class="matrix-table">
             <thead>
-              <tr id="matrixHeader">
-                <!-- 第一列由 JS 動態生成 (日期 + 6個場地) -->
-              </tr>
+              <tr id="matrixHeader"></tr>
             </thead>
-            <tbody id="matrixBody">
-              <!-- 內容由 JS 動態生成 -->
-            </tbody>
+            <tbody id="matrixBody"></tbody>
           </table>
         </div>
       </div>
 
-      <!-- 2. 管理者專區 -->
+      <!-- 2. 管理專區 (依身分差別顯示) -->
       <div class="tab-pane fade" id="admin-view">
+        <!-- 登入表單 -->
         <div id="adminLoginForm" class="card mx-auto my-4" style="max-width: 400px;">
           <div class="card-body">
-            <h5 class="card-title text-center">管理者登入</h5>
+            <h5 class="card-title text-center">系統使用者登入</h5>
             <div class="mb-3">
               <label>帳號</label>
-              <input type="text" id="loginUser" class="form-control" required>
+              <input type="text" id="loginUser" class="form-control" placeholder="請輸入帳號" required>
             </div>
             <div class="mb-3">
               <label>密碼</label>
-              <input type="password" id="loginPwd" class="form-control" required>
+              <input type="password" id="loginPwd" class="form-control" placeholder="請輸入密碼" required>
             </div>
-            <button class="btn btn-primary w-100" onclick="login()">登入</button>
+            <button class="btn btn-primary w-100" onclick="login()">登入系統</button>
           </div>
         </div>
 
+        <!-- 管理操作面板 (登入後顯示) -->
         <div id="adminPanel" class="d-none my-3">
-          <div class="d-flex justify-content-between mb-3">
-            <h5>管理者功能</h5>
-            <button class="btn btn-sm btn-secondary" onclick="logout()">登出</button>
+          <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+            <h4 class="mb-0">
+              <span id="roleTitleText">管理者功能</span>
+              <span class="badge bg-primary ms-2 fs-6" id="userDisplayTag"></span>
+            </h4>
+            <button class="btn btn-sm btn-outline-danger" onclick="logout()">安全登出</button>
           </div>
 
           <ul class="nav nav-pills mb-3">
@@ -107,7 +106,7 @@
           </ul>
 
           <div class="tab-content">
-            <!-- 預約管理 -->
+            <!-- 預約資料管理 -->
             <div class="tab-pane fade show active" id="pills-res">
               <div class="mb-3">
                 <button class="btn btn-success me-2" onclick="openResModal()">+ 單次新增預約</button>
@@ -121,12 +120,14 @@
               </table>
             </div>
 
-            <!-- 帳號管理 -->
+            <!-- 帳號密碼管理 -->
             <div class="tab-pane fade" id="pills-user">
-              <button class="btn btn-success mb-3" onclick="openUserModal()">+ 新增帳號</button>
+              <div class="mb-3">
+                <button id="addUserBtn" class="btn btn-success" onclick="openUserModal()">+ 新增帳號</button>
+              </div>
               <table class="table table-striped table-hover align-middle">
                 <thead>
-                  <tr><th>帳號</th><th>密碼</th><th>角色</th><th>操作</th></tr>
+                  <tr><th>帳號</th><th>角色權限</th><th>操作</th></tr>
                 </thead>
                 <tbody id="adminUserTable"></tbody>
               </table>
@@ -209,7 +210,7 @@
           </form>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-primary" onclick="saveReservation()">儲存</button>
+          <button type="button" class="btn btn-primary" onclick="saveReservation()">儲存預約</button>
         </div>
       </div>
     </div>
@@ -315,7 +316,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="userModalTitle">編輯帳號</h5>
+          <h5 class="modal-title" id="userModalTitle">編輯帳號與密碼</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
@@ -325,8 +326,8 @@
               <input type="text" id="accUsername" class="form-control" required>
             </div>
             <div class="mb-2">
-              <label>密碼</label>
-              <input type="text" id="accPassword" class="form-control" required>
+              <label>新密碼</label>
+              <input type="text" id="accPassword" class="form-control" placeholder="請輸入新密碼" required>
             </div>
             <div class="mb-2">
               <label>角色權限</label>
@@ -338,7 +339,7 @@
           </form>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-primary" onclick="saveUser()">儲存</button>
+          <button type="button" class="btn btn-primary" onclick="saveUser()">儲存變更</button>
         </div>
       </div>
     </div>
@@ -347,9 +348,8 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     // ⚠️ 請修改為您的 GAS 部署網址
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbxHgPRz7vJkF-IVhJosVkhyzNW3ZzufFkvI0aCewLWJpgqxgDlCv51ytREH2KBCYM90/exec"; // 請替換為真實部署ID
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbzL5Nf4jAtM-1b5zC9K6r_3wK5nO/exec"; // 請替換為真實部署ID
     
-    // 固定的 6 個場地清單
     const VENUES = [
       "智慧中心會議室（20）",
       "準備教室B（40）",
@@ -361,6 +361,7 @@
 
     const WEEK_DAYS = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"];
     let reservationsData = [];
+    let currentUser = { username: '', role: '' };
     let isEditingUser = false;
 
     window.onload = function() {
@@ -368,7 +369,6 @@
       loadReservations();
     };
 
-    // 初始化年度與月份下拉選單
     function initDropdowns() {
       const yearSelect = document.getElementById('yearSelect');
       const monthSelect = document.getElementById('monthSelect');
@@ -376,7 +376,6 @@
       const currentYear = now.getFullYear();
       const currentMonth = now.getMonth() + 1;
 
-      // 生成年度 (前1年至後2年)
       yearSelect.innerHTML = '';
       for (let y = currentYear - 1; y <= currentYear + 2; y++) {
         let opt = document.createElement('option');
@@ -386,7 +385,6 @@
         yearSelect.appendChild(opt);
       }
 
-      // 生成月份 (01 - 12)
       monthSelect.innerHTML = '';
       for (let m = 1; m <= 12; m++) {
         let opt = document.createElement('option');
@@ -415,12 +413,10 @@
         .catch(err => console.error("API Error:", err));
     }
 
-    // 渲染「橫向為場地、縱向為日期」的矩陣表格
     function renderMatrixCalendar() {
       const selYear = parseInt(document.getElementById('yearSelect').value);
       const selMonth = parseInt(document.getElementById('monthSelect').value);
       
-      // 1. 生成表頭 (日期 + 6個場地)
       const theadTr = document.getElementById('matrixHeader');
       theadTr.innerHTML = '<th>日期</th>';
       VENUES.forEach(v => {
@@ -429,30 +425,25 @@
         theadTr.appendChild(th);
       });
 
-      // 2. 計算該月總天數
       const daysInMonth = new Date(selYear, selMonth, 0).getDate();
       const tbody = document.getElementById('matrixBody');
       tbody.innerHTML = '';
 
-      // 3. 逐日渲染每一列 (Row)
       for (let day = 1; day <= daysInMonth; day++) {
         const tr = document.createElement('tr');
         const dateObj = new Date(selYear, selMonth - 1, day);
         const monthStr = String(selMonth).padStart(2, '0');
         const dayStr = String(day).padStart(2, '0');
-        const dateStr = `${selYear}-${monthStr}-${dayStr}`; // 比對用 yyyy-MM-dd
+        const dateStr = `${selYear}-${monthStr}-${dayStr}`;
         const weekDayStr = WEEK_DAYS[dateObj.getDay()];
 
-        // 第一欄：日期 (例如: 09-01 星期二)
         const dateTd = document.createElement('td');
         dateTd.className = 'date-cell';
         dateTd.innerText = `${monthStr}-${dayStr} ${weekDayStr}`;
         tr.appendChild(dateTd);
 
-        // 後續欄位：對應 6 個場地
         VENUES.forEach(v => {
           const td = document.createElement('td');
-          // 抓取符合 (日期 & 場地) 的預約
           const matches = reservationsData.filter(r => r.date === dateStr && r.venue === v);
           
           matches.forEach(item => {
@@ -488,33 +479,73 @@
       new bootstrap.Modal(document.getElementById('detailModal')).show();
     }
 
+    // 登入驗證與身份判定
     function login() {
       const u = document.getElementById('loginUser').value;
       const p = document.getElementById('loginPwd').value;
+      
+      if(!u || !p) {
+        alert("請輸入帳號與密碼！");
+        return;
+      }
+
       fetch(GAS_URL, {
         method: 'POST',
         body: JSON.stringify({ action: 'login', username: u, password: p })
       }).then(r => r.json()).then(res => {
         if(res.data && res.data.success) {
+          currentUser.username = res.data.username;
+          currentUser.role = res.data.role;
+
           document.getElementById('adminLoginForm').classList.add('d-none');
           document.getElementById('adminPanel').classList.remove('d-none');
+          
+          const isAdmin = currentUser.role === 'admin';
+          
+          // 1. 顯示身份提示
+          document.getElementById('roleTitleText').innerText = isAdmin ? "管理者功能" : "使用者功能";
+          document.getElementById('userDisplayTag').innerText = `登入者：${currentUser.username} (${isAdmin ? '系統管理者' : '一般使用者'})`;
+
+          // 2. 依身份調整按鈕顯示
+          if (!isAdmin) {
+            document.getElementById('addUserBtn').classList.add('d-none');
+          } else {
+            document.getElementById('addUserBtn').classList.remove('d-none');
+          }
+
           renderAdminResTable();
           loadUsers();
         } else {
-          alert('登入失敗，請確認帳號密碼');
+          alert('登入失敗，請確認帳號密碼！');
         }
       });
     }
 
     function logout() {
+      currentUser = { username: '', role: '' };
       document.getElementById('adminLoginForm').classList.remove('d-none');
       document.getElementById('adminPanel').classList.add('d-none');
+      document.getElementById('loginUser').value = '';
+      document.getElementById('loginPwd').value = '';
     }
 
+    // 渲染後台預約資料 (過濾身份)
     function renderAdminResTable() {
       const tbody = document.getElementById('adminResTable');
       tbody.innerHTML = '';
-      reservationsData.forEach(r => {
+      
+      // 區分身份：admin 可看全部預約，user 只能看到自己的預約
+      let displayData = reservationsData;
+      if (currentUser.role !== 'admin') {
+        displayData = reservationsData.filter(r => r.username === currentUser.username);
+      }
+
+      if (displayData.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">目前尚無預約紀錄</td></tr>';
+        return;
+      }
+
+      displayData.forEach(r => {
         let tr = document.createElement('tr');
         tr.innerHTML = `
           <td>${r.date}</td>
@@ -535,11 +566,23 @@
       document.getElementById('resForm').reset();
       document.getElementById('resId').value = '';
       document.getElementById('resModalTitle').innerText = "新增預約";
+      
+      // 自動帶入申請人，一般使用者鎖定不給修改
+      const userInput = document.getElementById('resUsername');
+      userInput.value = currentUser.username;
+      userInput.readOnly = (currentUser.role !== 'admin');
+
       new bootstrap.Modal(document.getElementById('resEditModal')).show();
     }
 
     function openRecurringModal() {
       document.getElementById('recurringForm').reset();
+
+      // 自動帶入申請人，一般使用者鎖定不給修改
+      const userInput = document.getElementById('recUsername');
+      userInput.value = currentUser.username;
+      userInput.readOnly = (currentUser.role !== 'admin');
+
       new bootstrap.Modal(document.getElementById('recurringModal')).show();
     }
 
@@ -551,6 +594,10 @@
       document.getElementById('resSlot').value = r.slot;
       document.getElementById('resPhone').value = r.phone;
       document.getElementById('resPurpose').value = r.purpose;
+      
+      const userInput = document.getElementById('resUsername');
+      userInput.readOnly = (currentUser.role !== 'admin');
+
       document.getElementById('resModalTitle').innerText = "修改預約";
       new bootstrap.Modal(document.getElementById('resEditModal')).show();
     }
@@ -664,6 +711,7 @@
       });
     }
 
+    // 帳號密碼管理 (過濾身份)
     function loadUsers() {
       fetch(GAS_URL, {
         method: 'POST',
@@ -672,16 +720,26 @@
         if(res.status === 'success') {
           const tbody = document.getElementById('adminUserTable');
           tbody.innerHTML = '';
-          res.data.forEach(u => {
+          
+          let usersList = res.data;
+          // 一般使用者只能看到自己的帳號
+          if (currentUser.role !== 'admin') {
+            usersList = usersList.filter(u => u.username === currentUser.username);
+          }
+
+          usersList.forEach(u => {
             let tr = document.createElement('tr');
+            let actionBtns = `<button class="btn btn-sm btn-warning" onclick='editUser(${JSON.stringify(u)})'>修改密碼</button>`;
+
+            // 管理者可看到刪除按鈕
+            if (currentUser.role === 'admin') {
+              actionBtns += ` <button class="btn btn-sm btn-danger" onclick='deleteUser("${u.username}")'>刪除</button>`;
+            }
+
             tr.innerHTML = `
               <td>${u.username}</td>
-              <td>${u.password}</td>
-              <td><span class="badge bg-info">${u.role}</span></td>
-              <td>
-                <button class="btn btn-sm btn-warning" onclick='editUser(${JSON.stringify(u)})'>修改</button>
-                <button class="btn btn-sm btn-danger" onclick='deleteUser("${u.username}")'>刪除</button>
-              </td>
+              <td><span class="badge ${u.role === 'admin' ? 'bg-danger' : 'bg-info'}">${u.role === 'admin' ? '系統管理者' : '一般使用者'}</span></td>
+              <td>${actionBtns}</td>
             `;
             tbody.appendChild(tr);
           });
@@ -693,6 +751,7 @@
       isEditingUser = false;
       document.getElementById('userForm').reset();
       document.getElementById('accUsername').readOnly = false;
+      document.getElementById('accRole').disabled = false;
       document.getElementById('userModalTitle').innerText = "新增帳號";
       new bootstrap.Modal(document.getElementById('userEditModal')).show();
     }
@@ -703,7 +762,11 @@
       document.getElementById('accUsername').readOnly = true;
       document.getElementById('accPassword').value = u.password;
       document.getElementById('accRole').value = u.role;
-      document.getElementById('userModalTitle').innerText = "修改帳號密碼";
+
+      // 一般使用者禁止修改角色權限
+      document.getElementById('accRole').disabled = (currentUser.role !== 'admin');
+
+      document.getElementById('userModalTitle').innerText = "修改密碼";
       new bootstrap.Modal(document.getElementById('userEditModal')).show();
     }
 
